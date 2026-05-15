@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# PyInstaller output
+Files/build/
+Files/release/
+Files/installer_release/
+*.spec.bak
+
+# Local generated installers and app builds
+/KYCReminder.exe
+/KYCReminderSetup.exe
+Files/msedgedriver.exe
+
+# Local logs/settings
+*.log
+settings.json
+team_member_history.json
+no_flip_history.json
+
+# Large generated third-party notices from local driver package
+Files/Driver_Notes/credits.html
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

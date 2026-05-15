@@ -1,0 +1,61 @@
+name: Build Windows App
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build application executable
+        shell: cmd
+        run: |
+          set CI=true
+          cd Files
+          call build.bat
+
+      - name: Build setup wizard
+        shell: cmd
+        run: |
+          set CI=true
+          cd Files
+          call build_installer.bat
+
+      - name: Upload executable artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: KYCReminder-Windows
+          path: |
+            KYCReminder.exe
+            KYCReminderSetup.exe
+
+      - name: Publish tagged release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag KYCReminder.exe KYCReminderSetup.exe --title $tag --generate-notes
+          } else {
+            gh release upload $tag KYCReminder.exe KYCReminderSetup.exe --clobber
+          }
